@@ -29,55 +29,83 @@ def closest_pair_brute(points):
 def distance(p1, p2):
     return math.sqrt(sum((p1[i]-p2[i])**2 for i in range(len(p1))))
 
-def closest_pair(points, counter = 0):
-    global dnq, brute
-    n = len(points)
+def closest_pair_strip(
+    points: list[tuple[int]], delta: float, dimension: int
+) -> tuple[tuple[int], tuple[int], float]:
+    global dnq
 
-    # base case / conquer
-    if n <= 3:
-        dnq += sum(i+1 for i in range(n))
-        brute -= sum(i+1 for i in range(n))
-        return closest_pair_brute(points)
-    dimension = len(points[0])
+    midIdx: int = len(points) // 2
+    median: float = (
+        points[midIdx - 1][dimension - 1] + points[midIdx][dimension - 1]
+    ) / 2
+    stripPoints: list[tuple[int]] = [
+        point for point in points if abs(median - point[dimension - 1]) < delta
+    ]
 
-    # divide
-    sorted_points = sorted(points, key = lambda point: point[counter])
+    if dimension == 2:
+        sortedPoints = sorted(stripPoints, key=lambda x: x[0])
 
-    mid = n // 2
-    left_half = sorted_points[:mid]
-    right_half = sorted_points[mid:]
-    
-    # solve each half recursively
-    left_point1, left_point2, left_delta = closest_pair(left_half)
-    right_point1, right_point2, right_delta = closest_pair(right_half)
-    delta = min2([left_delta, right_delta])
+        stripPoint1: tuple = None
+        stripPoint2: tuple = None
+        stripDelta: float = None
 
-    if delta == left_delta:
-        point1 = left_point1
-        point2 = left_point2  
-    else:
-        point1 = right_point1
-        point2 = right_point2
-
-    div_axis = sorted_points[mid][counter] if n % 2 == counter else (sorted_points[mid - 1][counter] + sorted_points[mid - 1][counter])/2
-    # stripe
-    if dimension - counter == 3 : 
-
-        left_stripe = [point for point in left_half if abs(point[counter] - div_axis) < delta]
-        right_stripe = [point for point in right_half if abs(point[counter] - div_axis) < delta]
-        # check for closest pairs within stripes
-        for i in range(len(left_stripe)):
-            right_stripe_to_check = [point for point in right_stripe if abs(point[dimension - 1] - left_stripe[i][dimension - 1]) < delta] # only interested if d + 1 distance within 2*delta
-            for j in range(len(right_stripe_to_check)):
+        # TODO: check number of iterations
+        for i in range(len(sortedPoints)):
+            for j in range(i + 1, len(sortedPoints)):
+                if sortedPoints[j][0] - sortedPoints[i][0] >= delta:
+                    break
+                dist = distance(sortedPoints[i], sortedPoints[j])
                 dnq += 1
-                d = distance(left_stripe[i], right_stripe_to_check[j])
-                if d < delta:
-                    point1, point2, delta = left_stripe[i], right_stripe_to_check[j], d
-        return point1, point2, delta
-    else: 
-        stripe = [point for point in sorted_points if abs(point[counter] - div_axis) < delta]
-        stripe_point1, stripe_point2, stripe_delta = closest_pair(stripe, counter + 1)
-        return stripe_point1, stripe_point2, stripe_delta if stripe_delta < delta else point1, point2, delta
+                if stripDelta == None or dist < stripDelta:
+                    stripPoint1, stripPoint2, stripDelta = (
+                        sortedPoints[i],
+                        sortedPoints[j],
+                        dist,
+                    )
+
+        if stripDelta != None:
+            return stripPoint1, stripPoint2, stripDelta
+        else:
+            return None, None, None
+    else:
+        return closest_pair(stripPoints, dimension - 1)
+
+
+def closest_pair(
+    points: list[tuple[int]], dimension: int
+) -> tuple[tuple[int], tuple[int], float]:
+    global dnq, brute
+
+    if len(points) <= 3:
+        dnq += sum(i + 1 for i in range(len(points)))
+        brute -= sum(i + 1 for i in range(len(points)))
+        return closest_pair_brute(points)
+
+    sortedPoints: list[tuple[int]] = sorted(points, key=lambda x: x[dimension - 1])
+
+    midIdx: int = len(points) // 2
+    leftPoints: list[tuple[int]] = sortedPoints[0:midIdx]
+    rightPoints: list[tuple[int]] = sortedPoints[midIdx : len(sortedPoints)]
+
+    leftPoint1, leftPoint2, leftDelta = closest_pair(leftPoints, dimension)
+
+    rightPoint1, rightPoint2, rightDelta = closest_pair(rightPoints, dimension)
+
+    delta = min(leftDelta, rightDelta)
+
+    stripPoint1, stripPoint2, stripDelta = closest_pair_strip(
+        sortedPoints, delta, dimension
+    )
+
+    if stripDelta != None:
+        delta = min(delta, stripDelta)
+
+    if delta == leftDelta:
+        return leftPoint1, leftPoint2, leftDelta
+    elif delta == rightDelta:
+        return rightPoint1, rightPoint2, rightDelta
+    elif stripDelta != None and delta == stripDelta:
+        return stripPoint1, stripPoint2, stripDelta
 
 
 brute = 0
