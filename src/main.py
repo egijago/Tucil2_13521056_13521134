@@ -4,7 +4,7 @@ from divide_conquer import *
 from utils import *
 from IO import *
 import matplotlib.pyplot as plt
-
+import platform
 
 
 
@@ -21,13 +21,14 @@ def welcome_text():
 
 
 def menu_text():
-        print("""
-    MENU
-    1. Generate random
-    2. Import from file
-    3. Exit
-
-        """)
+    print("================================MENU================================")
+    print()
+    print("1. Generate random           ")
+    print("2. Import from file          ")
+    print("3. Exit                      ")
+    print()
+    print("====================================================================")
+    
 def space(n=3):
     for _ in range (n):
         print()
@@ -44,8 +45,8 @@ def visualize(points, solution):
     for point in solution:
         ax.scatter(point[0], point[1], point[2], c='r', marker='o') 
     
-    # for point in solution:
-    #     ax.plot([set1[0,0], set2[0,0]], [set1[0,1], set2[0,1]], [set1[0,2], set2[0,2]], c='k')
+    for point in solution:
+        ax.plot([solution[0][0], solution[1][0]], [solution[0][1], solution[1][1]], [solution[0][2], solution[1][2]], c='k')
         
     ax.set_xlabel('x axis')
     ax.set_ylabel('y axis')
@@ -68,17 +69,19 @@ def compute(points):
     dnc = closest_pair(points, dim, dnc_counter.getEuclideanDistance)
     dnc_stop = timeit.default_timer()
 
-    if bf[2] != dnc[2]:
-        print("incorrect")
-
-    print(f"divide and conquer execution time: {dnc_stop - dnc_start} ms")
-    print(f"divide and conquer distance computation count: {dnc_counter.count}")
-    print(f"brute force execution time: {bf_stop - bf_start} ms")
-    print(f"divide and conquer distance computation count: {bf_counter.count}")
+    print("==============================SOLUTION==============================")
+    print()
+    print(f"Closest pair                           : {dnc[0]}, {dnc[1]}")
+    print(f"Closest distance                       : {dnc[2]}")
+    print()
+    print("=============================STATISTICS=============================")
+    print(f"DNQ execution time                     : {(dnc_stop - dnc_start)*1000} ms")
+    print(f"DNQ distance computation count         : {dnc_counter.count}")
+    print(f"Brute-force execution time             : {(bf_stop - bf_start)*1000} ms")
+    print(f"Brute-forcedistance computation count  : {bf_counter.count}")
+    print()
+    print(f"Running on: {platform.processor()}")
     
-    print(f"closest pair: {dnc[0]}, {dnc[1]}")
-    print(f"closest distance: {dnc[2]}")
-
     if dim == 3:
         cc = str(input("Do you want to visualize (y/n)? "))
         if cc == 'y':
@@ -93,24 +96,24 @@ def main():
         choice = int(input("> "))
 
         if choice == 1: 
-            num = int(input("Enter the number of points (n >= 2) : "))
+            num = int(input("Enter the number of points (n >= 2)    : "))
 
             if num  <= 1:
                 print("Please enter a number >= 2")
                 continue
 
-            dim = int(input("Enter the number of dimensions (d>=3) : "))
+            dim = int(input("Enter the number of dimensions (d>=1)  : "))
 
-            if dim  < 3:
-                print("Please enter a number >= 3")
+            if dim  < 1:
+                print("Please enter a number >= 1")
                 continue
 
-            x = int(input("Enter the range of randomized value : "))
+            x = int(input("Enter the range of randomized value    : "))
             points = generate_dots(num, x, dim)
             compute(points)
 
         elif choice == 2:
-            path = str(input("Enter the txt file path: "))
+            path = str(input("Enter the txt file path                   : "))
             try : 
                 points = read_from_file(path)
                 print(points)
@@ -124,6 +127,6 @@ def main():
 
         else :
             print("Masukan salah, harap masukkan (1-3)")
-
+        
 if __name__ == "__main__":
     main()
