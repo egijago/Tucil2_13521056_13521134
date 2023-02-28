@@ -2,6 +2,7 @@ from brute_force import *
 from closest_pair import *
 from divide_conquer import *
 from utils import *
+from IO import *
 import matplotlib.pyplot as plt
 
 
@@ -22,9 +23,10 @@ def welcome_text():
 def menu_text():
         print("""
     MENU
-    1. Generate Points at 3-dimension
-    2. Generate Points at n-dimension
+    1. Generate random
+    2. Import from file
     3. Exit
+
         """)
 def space(n=3):
     for _ in range (n):
@@ -52,16 +54,15 @@ def visualize(points, solution):
     plt.show()
 
 
-def compute(num, x, dim):
+def compute(points):
     space(1)
-
-    points = generate_dots(num, x, dim)
 
     bf_counter = DistFuncCounter()
     bf_start = timeit.default_timer()
     bf = closest_pair_brute(points, bf_counter.getEuclideanDistance)
     bf_stop = timeit.default_timer()
 
+    dim = len(points[0])
     dnc_counter = DistFuncCounter()
     dnc_start = timeit.default_timer()
     dnc = closest_pair(points, dim, dnc_counter.getEuclideanDistance)
@@ -98,16 +99,6 @@ def main():
                 print("Please enter a number >= 2")
                 continue
 
-            x = int(input("Enter the range of randomized value : "))
-            compute(num, x, 3)
-
-        elif choice == 2:
-            num = int(input("Enter the number of points (n >= 2) : "))
-
-            if num  <= 1:
-                print("Please enter a number >= 2")
-                continue
-
             dim = int(input("Enter the number of dimensions (d>=3) : "))
 
             if dim  < 3:
@@ -115,7 +106,17 @@ def main():
                 continue
 
             x = int(input("Enter the range of randomized value : "))
-            compute(num, x, dim)
+            points = generate_dots(num, x, dim)
+            compute(points)
+
+        elif choice == 2:
+            path = str(input("Enter the txt file path: "))
+            try : 
+                points = read_from_file(path)
+                print(points)
+                compute(points)
+            except: 
+                print("File not found or out of format")
 
         elif choice == 3:
             print("Bye-bye~")
