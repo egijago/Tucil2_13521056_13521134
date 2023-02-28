@@ -6,7 +6,7 @@ import timeit
 
 def testing(iter=100):
     dim = 5
-    points = generate_dots(dim=dim, num=10000, x=)
+    points = generate_dots(dim=dim, num=100)
 
     dnc_start = timeit.default_timer()
     dnc = closest_pair(points, dim)

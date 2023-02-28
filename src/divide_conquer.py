@@ -51,7 +51,7 @@ def closest_pair(
         for i in range(len(points)):
             for j in range(i + 1, len(points)):
                 dist = distance(points[i], points[j])
-                if delta == None or delta < dist:
+                if delta == None or dist < delta:
                     point1, point2, delta = points[i], points[j], dist
 
         return point1, point2, delta
