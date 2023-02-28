@@ -2,12 +2,8 @@ import math
 from random import randint
 
 
-def min2(lst):
-    return min(filter(lambda x: x is not None, lst)) if any(lst) else None
-
-
 def generate_dots(num=100, x=100, dim=3):
-    return [tuple([randint(-x, x) for _i in range(dim)]) for _j in range(num)]
+    return [[randint(-x, x) for _i in range(dim)] for _j in range(num)]
 
 
 def distance(p1, p2):

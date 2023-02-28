@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from sorting import quicksort
 
 
 def closest_pair_strip(
@@ -16,21 +17,21 @@ def closest_pair_strip(
     ]
 
     if dimension == 2:
-        sortedPoints = sorted(stripPoints, key=lambda x: x[0])
+        quicksort(stripPoints, 0, len(stripPoints) - 1, 0)
 
         stripPoint1: tuple = None
         stripPoint2: tuple = None
         stripDelta: float = None
 
-        for i in range(len(sortedPoints)):
-            for j in range(i + 1, len(sortedPoints)):
-                if sortedPoints[j][0] - sortedPoints[i][0] >= delta:
+        for i in range(len(stripPoints)):
+            for j in range(i + 1, len(stripPoints)):
+                if stripPoints[j][0] - stripPoints[i][0] >= delta:
                     break
-                dist = getEuclideanDistance(sortedPoints[i], sortedPoints[j])
+                dist = getEuclideanDistance(stripPoints[i], stripPoints[j])
                 if stripDelta == None or dist < stripDelta:
                     stripPoint1, stripPoint2, stripDelta = (
-                        sortedPoints[i],
-                        sortedPoints[j],
+                        stripPoints[i],
+                        stripPoints[j],
                         dist,
                     )
 
@@ -61,11 +62,11 @@ def closest_pair(
 
         return point1, point2, delta
 
-    sortedPoints: list[tuple[int]] = sorted(points, key=lambda x: x[dimension - 1])
+    quicksort(points, 0, len(points) - 1, dimension - 1)
 
     midIdx: int = len(points) // 2
-    leftPoints: list[tuple[int]] = sortedPoints[:midIdx]
-    rightPoints: list[tuple[int]] = sortedPoints[midIdx:]
+    leftPoints: list[tuple[int]] = points[:midIdx]
+    rightPoints: list[tuple[int]] = points[midIdx:]
 
     leftPoint1, leftPoint2, leftDelta = closest_pair(
         leftPoints, dimension, getEuclideanDistance
@@ -77,7 +78,7 @@ def closest_pair(
     delta = min(leftDelta, rightDelta)
 
     stripPoint1, stripPoint2, stripDelta = closest_pair_strip(
-        sortedPoints, delta, dimension, getEuclideanDistance
+        points, delta, dimension, getEuclideanDistance
     )
 
     if stripDelta != None:
