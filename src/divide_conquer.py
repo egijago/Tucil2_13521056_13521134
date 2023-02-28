@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from sorting import quicksort
+from utils import appendPairsIfNotIn
 
 
 def closest_pair_strip(
@@ -7,7 +8,7 @@ def closest_pair_strip(
     delta: float,
     dimension: int,
     getEuclideanDistance: Callable[[tuple[int], tuple[int]], float],
-) -> tuple[tuple[int], tuple[int], float]:
+) -> tuple[list[tuple[tuple, tuple]], float]:
     midIdx: int = len(points) // 2
     median: float = (
         points[midIdx - 1][dimension - 1] + points[midIdx][dimension - 1]
@@ -19,8 +20,7 @@ def closest_pair_strip(
     if dimension == 2:
         quicksort(stripPoints, 0, len(stripPoints) - 1, 0)
 
-        stripPoint1: tuple = None
-        stripPoint2: tuple = None
+        min_strip_points = []
         stripDelta: float = None
 
         for i in range(len(stripPoints)):
@@ -29,16 +29,15 @@ def closest_pair_strip(
                     break
                 dist = getEuclideanDistance(stripPoints[i], stripPoints[j])
                 if stripDelta == None or dist < stripDelta:
-                    stripPoint1, stripPoint2, stripDelta = (
-                        stripPoints[i],
-                        stripPoints[j],
-                        dist,
-                    )
+                    min_strip_points = [(stripPoints[i], stripPoints[j])]
+                    stripDelta = dist
+                elif stripDelta != None and dist == stripDelta:
+                    min_strip_points.append((stripPoints[i], stripPoints[j]))
 
         if stripDelta != None:
-            return stripPoint1, stripPoint2, stripDelta
+            return min_strip_points, stripDelta
         else:
-            return None, None, None
+            return None, None
     else:
         return closest_pair(stripPoints, dimension - 1, getEuclideanDistance)
 
@@ -47,20 +46,22 @@ def closest_pair(
     points: list[tuple[int]],
     dimension: int,
     getEuclideanDistance: Callable[[tuple[int], tuple[int]], float],
-) -> tuple[tuple[int], tuple[int], float]:
+) -> tuple[list[tuple[tuple, tuple]], float]:
     if len(points) == 1:
-        return None, None, None
+        return None, None
     if len(points) <= 3:
-        point1 = None
-        point2 = None
+        min_points = []
         delta = None
         for i in range(len(points)):
             for j in range(i + 1, len(points)):
                 dist = getEuclideanDistance(points[i], points[j])
                 if delta == None or dist < delta:
-                    point1, point2, delta = points[i], points[j], dist
+                    min_points = [(points[i], points[j])]
+                    delta = dist
+                elif delta != None and dist == delta:
+                    min_points.append((points[i], points[j]))
 
-        return point1, point2, delta
+        return min_points, delta
 
     quicksort(points, 0, len(points) - 1, dimension - 1)
 
@@ -68,25 +69,26 @@ def closest_pair(
     leftPoints: list[tuple[int]] = points[:midIdx]
     rightPoints: list[tuple[int]] = points[midIdx:]
 
-    leftPoint1, leftPoint2, leftDelta = closest_pair(
-        leftPoints, dimension, getEuclideanDistance
-    )
-    rightPoint1, rightPoint2, rightDelta = closest_pair(
+    left_points, leftDelta = closest_pair(leftPoints, dimension, getEuclideanDistance)
+    right_points, rightDelta = closest_pair(
         rightPoints, dimension, getEuclideanDistance
     )
 
     delta = min(leftDelta, rightDelta)
 
-    stripPoint1, stripPoint2, stripDelta = closest_pair_strip(
+    strip_points, stripDelta = closest_pair_strip(
         points, delta, dimension, getEuclideanDistance
     )
 
     if stripDelta != None:
         delta = min(delta, stripDelta)
 
+    min_points = []
     if delta == leftDelta:
-        return leftPoint1, leftPoint2, leftDelta
-    elif delta == rightDelta:
-        return rightPoint1, rightPoint2, rightDelta
-    elif stripDelta != None and delta == stripDelta:
-        return stripPoint1, stripPoint2, stripDelta
+        min_points.extend(left_points)
+    if delta == rightDelta:
+        min_points.extend(right_points)
+    if stripDelta != None and delta == stripDelta:
+        appendPairsIfNotIn(min_points, strip_points)
+
+    return min_points, delta
