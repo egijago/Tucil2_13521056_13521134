@@ -5,8 +5,8 @@ import timeit
 
 
 def testing(iter=100):
-    dim = 5
-    points = generate_dots(dim=dim, num=100)
+    dim = 3
+    points = generate_dots(dim=dim, num=1000)
 
     bf_counter = DistFuncCounter()
     bf_start = timeit.default_timer()
