@@ -1,8 +1,11 @@
-from utils import distance
+from collections.abc import Callable
 
 
 def closest_pair_strip(
-    points: list[tuple[int]], delta: float, dimension: int
+    points: list[tuple[int]],
+    delta: float,
+    dimension: int,
+    getEuclideanDistance: Callable[[tuple[int], tuple[int]], float],
 ) -> tuple[tuple[int], tuple[int], float]:
     midIdx: int = len(points) // 2
     median: float = (
@@ -23,7 +26,7 @@ def closest_pair_strip(
             for j in range(i + 1, len(sortedPoints)):
                 if sortedPoints[j][0] - sortedPoints[i][0] >= delta:
                     break
-                dist = distance(sortedPoints[i], sortedPoints[j])
+                dist = getEuclideanDistance(sortedPoints[i], sortedPoints[j])
                 if stripDelta == None or dist < stripDelta:
                     stripPoint1, stripPoint2, stripDelta = (
                         sortedPoints[i],
@@ -36,11 +39,13 @@ def closest_pair_strip(
         else:
             return None, None, None
     else:
-        return closest_pair(stripPoints, dimension - 1)
+        return closest_pair(stripPoints, dimension - 1, getEuclideanDistance)
 
 
 def closest_pair(
-    points: list[tuple[int]], dimension: int
+    points: list[tuple[int]],
+    dimension: int,
+    getEuclideanDistance: Callable[[tuple[int], tuple[int]], float],
 ) -> tuple[tuple[int], tuple[int], float]:
     if len(points) == 1:
         return None, None, None
@@ -50,7 +55,7 @@ def closest_pair(
         delta = None
         for i in range(len(points)):
             for j in range(i + 1, len(points)):
-                dist = distance(points[i], points[j])
+                dist = getEuclideanDistance(points[i], points[j])
                 if delta == None or dist < delta:
                     point1, point2, delta = points[i], points[j], dist
 
@@ -62,13 +67,17 @@ def closest_pair(
     leftPoints: list[tuple[int]] = sortedPoints[:midIdx]
     rightPoints: list[tuple[int]] = sortedPoints[midIdx:]
 
-    leftPoint1, leftPoint2, leftDelta = closest_pair(leftPoints, dimension)
-    rightPoint1, rightPoint2, rightDelta = closest_pair(rightPoints, dimension)
+    leftPoint1, leftPoint2, leftDelta = closest_pair(
+        leftPoints, dimension, getEuclideanDistance
+    )
+    rightPoint1, rightPoint2, rightDelta = closest_pair(
+        rightPoints, dimension, getEuclideanDistance
+    )
 
     delta = min(leftDelta, rightDelta)
 
     stripPoint1, stripPoint2, stripDelta = closest_pair_strip(
-        sortedPoints, delta, dimension
+        sortedPoints, delta, dimension, getEuclideanDistance
     )
 
     if stripDelta != None:
