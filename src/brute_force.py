@@ -6,10 +6,9 @@ def closest_pair_brute(
     getEuclideanDistance: Callable[[tuple[int], tuple[int]], float],
 ):
     if len(points) <= 1:
-        return None, None, None
+        return None, None
 
-    min_point1 = None
-    min_point2 = None
+    min_points = []
     min = None
 
     for i in range(len(points)):
@@ -19,6 +18,8 @@ def closest_pair_brute(
             temp = getEuclideanDistance(point1, point2)
             if min == None or temp < min:
                 min = temp
-                min_point1, min_point2 = point1, point2
+                min_points = [(point1, point2)]
+            elif min != None and temp == min:
+                min_points.append((point1, point2))
 
-    return min_point1, min_point2, min
+    return min_points, min
