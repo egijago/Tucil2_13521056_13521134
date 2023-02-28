@@ -1,5 +1,5 @@
 ## Description
-    Program ini dibuat untuk menyelesaikan persoalan *The closest pair problem*. Pada program ini akan digunakan algoritma *divide and conquer* untuk menyelesaikan persoalan tersebut.
+Program ini dibuat untuk menyelesaikan persoalan *The closest pair problem*. Pada program ini akan digunakan algoritma *divide and conquer* untuk menyelesaikan persoalan tersebut.
 
 ## Dependencies
 - Python 3.8.8 
